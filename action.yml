@@ -2,6 +2,10 @@ name: 'Dendron Multi-Publish'
 description: 'Automatically publish your multi-vault dendron projects'
 author: 'invakid404'
 inputs:
+  dendron-cli-command:
+    required: false
+    default: "npx dendron"
+    description: "Command to run dendron CLI with"
   ignore-private:
     required: false
     default: "true"
