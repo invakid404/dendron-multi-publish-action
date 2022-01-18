@@ -1,0 +1,11 @@
+name: 'Dendron Multi-Publish'
+description: 'Automatically publish your multi-vault dendron projects'
+author: 'invakid404'
+inputs:
+  ignorePrivate:
+    required: false
+    default: "true"
+    description: 'Ignore private vaults'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
