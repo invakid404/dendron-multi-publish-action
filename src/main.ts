@@ -76,4 +76,10 @@ const doIgnorePrivate = (config: DendronConfig): void => {
 
     childProcess.execSync(initNextCommand);
   }
+
+  if (fs.existsSync('.next/.next')) {
+    core.info('Purging next cache ...');
+
+    fs.rmSync('.next/.next', { recursive: true, force: true });
+  }
 })();
