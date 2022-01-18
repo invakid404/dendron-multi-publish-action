@@ -50,11 +50,33 @@ const doIgnorePrivate = (config) => {
     if (ignorePrivate) {
         doIgnorePrivate(dendronConfig);
     }
-    core.info('Initializing workspace');
+    core.info('Initializing workspace ...');
     const initCommand = [...dendronCommand, 'workspace', 'init']
         .map((arg) => shlex.quote(arg))
         .join(' ');
     childProcess.execSync(initCommand);
+    if (fs.existsSync('.next/.git')) {
+        core.info('Updating dendron .next ...');
+        childProcess.execSync('git reset --hard', {
+            cwd: '.next',
+        });
+        childProcess.execSync('git clean -f', {
+            cwd: '.next',
+        });
+        childProcess.execSync('git pull', {
+            cwd: '.next',
+        });
+        childProcess.execSync('yarn', {
+            cwd: '.next',
+        });
+    }
+    else {
+        core.info('Initializing dendron .next ...');
+        const initNextCommand = [...dendronCommand, 'publish', 'init']
+            .map((arg) => shlex.quote(arg))
+            .join(' ');
+        childProcess.execSync(initNextCommand);
+    }
 })();
 
 
