@@ -82,4 +82,23 @@ const doIgnorePrivate = (config: DendronConfig): void => {
 
     fs.rmSync('.next/.next', { recursive: true, force: true });
   }
+
+  if (ignorePrivate) {
+    doIgnorePrivate(dendronConfig);
+  }
+
+  core.info('Exporting notes ...');
+
+  const exportCommand = [
+    ...dendronCommand,
+    'publish',
+    'export',
+    '--target',
+    'github',
+    '--yes',
+  ]
+    .map((arg) => shlex.quote(arg))
+    .join(' ');
+
+  childProcess.execSync(exportCommand);
 })();
