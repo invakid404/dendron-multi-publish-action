@@ -55,10 +55,6 @@ const doIgnorePrivate = (config: DendronConfig): void => {
 
   childProcess.execSync(initCommand);
 
-  if (ignorePrivate) {
-    doIgnorePrivate(dendronConfig);
-  }
-
   const vaults = [
     ...(dendronConfig.vaults ?? []),
     ...(dendronConfig.workspace?.vaults ?? []),
@@ -135,10 +131,6 @@ const doIgnorePrivate = (config: DendronConfig): void => {
     core.info('Purging next cache ...');
 
     fs.rmSync('.next/.next', { recursive: true, force: true });
-  }
-
-  if (ignorePrivate) {
-    doIgnorePrivate(dendronConfig);
   }
 
   core.info('Exporting notes ...');
