@@ -55,6 +55,10 @@ const doIgnorePrivate = (config: DendronConfig): void => {
 
   childProcess.execSync(initCommand);
 
+  if (ignorePrivate) {
+    doIgnorePrivate(dendronConfig);
+  }
+
   const vaults = [
     ...(dendronConfig.vaults ?? []),
     ...(dendronConfig.workspace?.vaults ?? []),
