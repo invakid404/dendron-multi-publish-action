@@ -1,9 +1,15 @@
+import * as cache from '@actions/cache';
 import * as core from '@actions/core';
-import { DendronConfig as DendronWorkspaceConfig } from '@dendronhq/common-all';
+import {
+  DendronConfig as DendronWorkspaceConfig,
+  VaultUtils,
+} from '@dendronhq/common-all';
 import { DendronConfig as DendronGlobalConfig } from '@dendronhq/common-all/lib/types/configs/dendronConfig';
 import * as childProcess from 'child_process';
+import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
+import * as path from 'path';
 import * as shlex from 'shlex';
 
 type DendronConfig = DendronWorkspaceConfig & DendronGlobalConfig;
@@ -48,6 +54,49 @@ const doIgnorePrivate = (config: DendronConfig): void => {
     .join(' ');
 
   childProcess.execSync(initCommand);
+
+  const vaults = [
+    ...(dendronConfig.vaults ?? []),
+    ...(dendronConfig.workspace?.vaults ?? []),
+  ];
+
+  const markdownFileHashes = vaults.flatMap((vault) => {
+    const fsPath = VaultUtils.getRelPath(vault);
+
+    const files = fs.readdirSync(fsPath);
+    const markdownFiles = files.filter(
+      (file) => path.extname(file).toLowerCase() === '.md',
+    );
+
+    return markdownFiles.map((file) => {
+      const filePath = path.join(vault.fsPath, file);
+      const fileData = fs.readFileSync(filePath, 'utf8');
+
+      return crypto.createHash('sha256').update(fileData).digest('hex');
+    });
+  });
+
+  markdownFileHashes.sort((a, b) => a.localeCompare(b));
+
+  const workspaceHash = crypto
+    .createHash('sha256')
+    .update(markdownFileHashes.join(''))
+    .digest('hex');
+
+  core.info(`Workspace hash: ${workspaceHash}`);
+
+  const cacheKey = await cache.restoreCache(
+    ['docs/'],
+    `dendron-multi-publish-${workspaceHash}`,
+  );
+
+  if (cacheKey) {
+    core.info('Workspace already published, skipping publish');
+
+    return;
+  }
+
+  core.info('Published notes not found in cache, publishing ...');
 
   if (fs.existsSync('.next/.git')) {
     core.info('Updating dendron .next ...');
@@ -101,4 +150,8 @@ const doIgnorePrivate = (config: DendronConfig): void => {
     .join(' ');
 
   childProcess.execSync(exportCommand);
+
+  core.info('Caching published docs ...');
+
+  await cache.saveCache(['docs/'], `dendron-multi-publish-${workspaceHash}`);
 })();
