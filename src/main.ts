@@ -92,6 +92,7 @@ const doIgnorePrivate = (config: DendronConfig): void => {
 
   if (cacheKey) {
     core.info('Workspace already published, skipping publish');
+    core.setOutput('was-published', false);
 
     return;
   }
@@ -154,4 +155,6 @@ const doIgnorePrivate = (config: DendronConfig): void => {
   core.info('Caching published docs ...');
 
   await cache.saveCache(['docs/'], `dendron-multi-publish-${workspaceHash}`);
+
+  core.setOutput('was-published', true);
 })();

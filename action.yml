@@ -10,6 +10,9 @@ inputs:
     required: false
     default: "true"
     description: 'Ignore private vaults'
+outputs:
+  was-published:
+    description: 'True if workspace was published'
 runs:
   using: 'node12'
   main: 'dist/index.js'
