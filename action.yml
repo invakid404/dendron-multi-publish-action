@@ -2,6 +2,10 @@ name: 'Dendron Multi-Publish'
 description: 'Automatically publish your multi-vault dendron projects'
 author: 'invakid404'
 inputs:
+  dendron-config:
+    required: false
+    default: "dendron.yml"
+    description: "Path to dendron.yml, relative to the current directory"
   dendron-cli-command:
     required: false
     default: "npx dendron"

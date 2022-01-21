@@ -8,8 +8,6 @@ import * as yaml from 'js-yaml';
 import * as path from 'path';
 import * as shlex from 'shlex';
 
-const configName = 'dendron.yml';
-
 const doIgnorePrivate = (config: StrictConfigV4): void => {
   config.workspace.vaults = config.workspace.vaults.filter(
     ({ visibility }) => visibility !== 'private',
@@ -26,15 +24,14 @@ const doIgnorePrivate = (config: StrictConfigV4): void => {
         nameSet.has(name),
       );
   }
-
-  fs.writeFileSync(configName, yaml.dump(config));
 };
 
 (async (): Promise<void> => {
+  const dendronConfigPath = core.getInput('dendron-config');
   const dendronCommand = shlex.split(core.getInput('dendron-cli-command'));
   const ignorePrivate = core.getBooleanInput('ignore-private');
 
-  const dendronConfigData = fs.readFileSync(configName, 'utf8');
+  const dendronConfigData = fs.readFileSync(dendronConfigPath, 'utf8');
   const dendronConfig = yaml.load(dendronConfigData) as StrictConfigV4;
 
   if (!configIsV4(dendronConfig)) {
@@ -45,6 +42,8 @@ const doIgnorePrivate = (config: StrictConfigV4): void => {
 
   if (ignorePrivate) {
     doIgnorePrivate(dendronConfig);
+
+    fs.writeFileSync(dendronConfigPath, yaml.dump(dendronConfig));
   }
 
   core.info('Initializing workspace ...');
