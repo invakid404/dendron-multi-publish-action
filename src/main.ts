@@ -1,10 +1,6 @@
 import * as cache from '@actions/cache';
 import * as core from '@actions/core';
-import {
-  DendronConfig as DendronWorkspaceConfig,
-  VaultUtils,
-} from '@dendronhq/common-all';
-import { DendronConfig as DendronGlobalConfig } from '@dendronhq/common-all/lib/types/configs/dendronConfig';
+import { configIsV4, StrictConfigV4, VaultUtils } from '@dendronhq/common-all';
 import * as childProcess from 'child_process';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
@@ -12,11 +8,9 @@ import * as yaml from 'js-yaml';
 import * as path from 'path';
 import * as shlex from 'shlex';
 
-type DendronConfig = DendronWorkspaceConfig & DendronGlobalConfig;
-
 const configName = 'dendron.yml';
 
-const doIgnorePrivate = (config: DendronConfig): void => {
+const doIgnorePrivate = (config: StrictConfigV4): void => {
   config.workspace.vaults = config.workspace.vaults.filter(
     ({ visibility }) => visibility !== 'private',
   );
@@ -41,7 +35,13 @@ const doIgnorePrivate = (config: DendronConfig): void => {
   const ignorePrivate = core.getBooleanInput('ignore-private');
 
   const dendronConfigData = fs.readFileSync(configName, 'utf8');
-  const dendronConfig = yaml.load(dendronConfigData) as DendronConfig;
+  const dendronConfig = yaml.load(dendronConfigData) as StrictConfigV4;
+
+  if (!configIsV4(dendronConfig)) {
+    core.setFailed('This action only supports v4 configs!');
+
+    return;
+  }
 
   if (ignorePrivate) {
     doIgnorePrivate(dendronConfig);
@@ -55,12 +55,7 @@ const doIgnorePrivate = (config: DendronConfig): void => {
 
   childProcess.execSync(initCommand);
 
-  const vaults = [
-    ...(dendronConfig.vaults ?? []),
-    ...(dendronConfig.workspace?.vaults ?? []),
-  ];
-
-  const markdownFileHashes = vaults.flatMap((vault) => {
+  const markdownFileHashes = dendronConfig.workspace.vaults.flatMap((vault) => {
     const fsPath = VaultUtils.getRelPath(vault);
 
     const files = fs.readdirSync(fsPath);
