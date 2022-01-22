@@ -3,6 +3,7 @@ import * as core from '@actions/core';
 import { configIsV4, StrictConfigV4, VaultUtils } from '@dendronhq/common-all';
 import * as childProcess from 'child_process';
 import * as crypto from 'crypto';
+import * as glob from 'fast-glob';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 import * as path from 'path';
@@ -54,15 +55,11 @@ const doIgnorePrivate = (config: StrictConfigV4): void => {
 
   childProcess.execSync(initCommand);
 
-  const markdownFileHashes = dendronConfig.workspace.vaults.flatMap((vault) => {
+  const vaultHashes = dendronConfig.workspace.vaults.flatMap((vault) => {
     const fsPath = VaultUtils.getRelPath(vault);
+    const files = glob.sync(['assets/**', '*.md'], { cwd: fsPath });
 
-    const files = fs.readdirSync(fsPath);
-    const markdownFiles = files.filter(
-      (file) => path.extname(file).toLowerCase() === '.md',
-    );
-
-    return markdownFiles.map((file) => {
+    return files.map((file) => {
       const filePath = path.join(vault.fsPath, file);
       const fileData = fs.readFileSync(filePath, 'utf8');
 
@@ -70,11 +67,11 @@ const doIgnorePrivate = (config: StrictConfigV4): void => {
     });
   });
 
-  markdownFileHashes.sort((a, b) => a.localeCompare(b));
+  vaultHashes.sort((a, b) => a.localeCompare(b));
 
   const workspaceHash = crypto
     .createHash('sha256')
-    .update(markdownFileHashes.join(''))
+    .update(vaultHashes.join(''))
     .digest('hex');
 
   core.info(`Workspace hash: ${workspaceHash}`);
