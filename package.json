@@ -31,7 +31,7 @@
     "shlex": "^2.1.0"
   },
   "devDependencies": {
-    "@dendronhq/common-all": "^0.80.0",
+    "@dendronhq/common-all": "^0.81.0",
     "@types/js-yaml": "^4.0.5",
     "@types/node": "^17.0.16",
     "@typescript-eslint/parser": "^4.31.2",
