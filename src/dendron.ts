@@ -1,15 +1,16 @@
-import { StrictConfigV4, VaultUtils } from '@dendronhq/common-all';
+import { VaultUtils } from '@dendronhq/common-all';
 import crypto from 'crypto';
 import * as glob from 'fast-glob';
 import fs from 'fs';
 import path from 'path';
 
 import { CommandParts, runCommand, runCommands } from './commands';
+import { DendronConfig } from './config';
 
 export class Dendron {
   constructor(
     private readonly baseCommand: CommandParts,
-    private readonly config: StrictConfigV4,
+    private readonly config: DendronConfig,
   ) {}
 
   initWorkspace(): string {
