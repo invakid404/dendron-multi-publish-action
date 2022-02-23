@@ -47,7 +47,7 @@ export class Dendron {
   }
 
   getVersion(): string {
-    return runCommand([...this.baseCommand, '--version']);
+    return runCommand([...this.baseCommand, '--version']).trim();
   }
 
   initPublish(): string {
