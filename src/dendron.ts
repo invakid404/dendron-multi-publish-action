@@ -2,6 +2,7 @@ import { VaultUtils } from '@dendronhq/common-all';
 import crypto from 'crypto';
 import * as glob from 'fast-glob';
 import fs from 'fs';
+import objectHash from 'object-hash';
 import path from 'path';
 
 import { CommandParts, runCommand, runCommands } from './commands';
@@ -18,6 +19,8 @@ export class Dendron {
   }
 
   hashWorkspace(): string {
+    const configHash = objectHash(this.config);
+
     const vaultHashes = this.config.workspace.vaults.flatMap((vault) => {
       const fsPath = VaultUtils.getRelPath(vault);
       const files = glob.sync(['assets/**', '*.md'], { cwd: fsPath });
@@ -34,7 +37,7 @@ export class Dendron {
 
     return crypto
       .createHash('sha256')
-      .update(vaultHashes.join(''))
+      .update([configHash, ...vaultHashes].join(''))
       .digest('hex');
   }
 
