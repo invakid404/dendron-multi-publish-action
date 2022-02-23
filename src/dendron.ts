@@ -19,6 +19,11 @@ export class Dendron {
   }
 
   hashWorkspace(): string {
+    const versionHash = crypto
+      .createHash('sha256')
+      .update(this.getVersion())
+      .digest('hex');
+
     const configHash = objectHash(this.config);
 
     const vaultHashes = this.config.workspace.vaults.flatMap((vault) => {
@@ -37,8 +42,12 @@ export class Dendron {
 
     return crypto
       .createHash('sha256')
-      .update([configHash, ...vaultHashes].join(''))
+      .update([versionHash, configHash, ...vaultHashes].join(''))
       .digest('hex');
+  }
+
+  getVersion(): string {
+    return runCommand([...this.baseCommand, '--version']);
   }
 
   initPublish(): string {
