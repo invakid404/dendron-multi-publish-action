@@ -33,7 +33,7 @@
   "devDependencies": {
     "@dendronhq/common-all": "^0.82.0",
     "@types/js-yaml": "^4.0.5",
-    "@types/node": "^17.0.16",
+    "@types/node": "^17.0.19",
     "@typescript-eslint/parser": "^4.31.2",
     "@vercel/ncc": "^0.31.1",
     "eslint": "^7.32.0",
