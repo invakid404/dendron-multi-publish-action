@@ -28,6 +28,7 @@
     "@actions/core": "^1.4.0",
     "fast-glob": "^3.2.11",
     "js-yaml": "^4.1.0",
+    "object-hash": "^3.0.0",
     "shlex": "^2.1.0"
   },
   "devDependencies": {
