@@ -32,7 +32,7 @@
     "shlex": "^2.1.0"
   },
   "devDependencies": {
-    "@dendronhq/common-all": "^0.86.0",
+    "@dendronhq/common-all": "^0.93.0",
     "@types/js-yaml": "^4.0.5",
     "@types/node": "^17.0.21",
     "@types/object-hash": "^2.2.1",
