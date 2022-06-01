@@ -21,16 +21,20 @@ import { Dendron } from './dendron';
     const workspaceHash = dendron.hashWorkspace();
     core.info(`Workspace hash: ${workspaceHash}`);
 
-    const cacheKey = await cache.restoreCache(
-      ['docs/'],
-      `dendron-multi-publish-${workspaceHash}`,
-    );
+    try {
+      const cacheKey = await cache.restoreCache(
+        ['docs/'],
+        `dendron-multi-publish-${workspaceHash}`,
+      );
 
-    if (cacheKey) {
-      core.info('Workspace already published, skipping publish');
-      core.setOutput('was-published', false);
+      if (cacheKey) {
+        core.info('Workspace already published, skipping publish');
+        core.setOutput('was-published', false);
 
-      return;
+        return;
+      }
+    } catch (error) {
+      core.info(`Failed to restore cache: ${error}`);
     }
 
     core.info('Published notes not found in cache, publishing ...');
@@ -39,7 +43,14 @@ import { Dendron } from './dendron';
 
     core.info('Caching published docs...');
 
-    await cache.saveCache(['docs/'], `dendron-multi-publish-${workspaceHash}`);
+    try {
+      await cache.saveCache(
+        ['docs/'],
+        `dendron-multi-publish-${workspaceHash}`,
+      );
+    } catch (error) {
+      core.info(`Failed to cache published docs: ${error}`);
+    }
 
     core.setOutput('was-published', true);
   } catch (error) {
